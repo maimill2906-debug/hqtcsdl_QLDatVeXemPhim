@@ -237,6 +237,17 @@ RETURN (
     WHERE s.MaSuatChieu = @MaSuatChieu AND v.MaVe IS NULL
 );
 GO
+-- 5. Hàm lấy suất chiếu hôm nay 
+CREATE FUNCTION fn_LaySuatChieuHomNay()
+RETURNS TABLE
+AS
+RETURN (
+    SELECT s.MaSuatChieu, s.MaPhim, p.TenPhim, s.MaPhong, s.NgayChieu, s.GioBatDau, s.GioKetThuc
+    FROM SUAT_CHIEU s
+    INNER JOIN PHIM p ON s.MaPhim = p.MaPhim
+    WHERE s.NgayChieu = CAST(GETDATE() AS DATE) AND s.TrangThai = N'Đang chiếu'
+);
+GO
 
 -- CÁC TRIGGER 
 -- 1. Trigger chặn đặt trùng ghế (Double Booking)
@@ -1095,3 +1106,5 @@ GO
 --20.Xóa thể loại 
 CREATE PROCEDURE [dbo].[sp_XoaTheLoai] @MaTheLoai VARCHAR(10) AS BEGIN IF EXISTS (SELECT 1 FROM PHIM WHERE MaTheLoai = @MaTheLoai) BEGIN RAISERROR(N'Không thể xóa thể loại đã được sử dụng ở bảng Phim!', 16, 1); END ELSE BEGIN DELETE FROM THE_LOAI WHERE MaTheLoai = @MaTheLoai; END END;
 GO
+
+
